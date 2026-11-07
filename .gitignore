@@ -1,6 +1,9 @@
 # Configuración privada (posición real de la antena)
 config.local.json
 
+# Datos acumulados en tiempo de ejecución (cobertura…)
+datos/
+
 # Python
 __pycache__/
 *.py[cod]

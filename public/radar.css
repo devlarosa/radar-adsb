@@ -259,6 +259,24 @@ h2 {
   font-size: 0.85rem;
 }
 
+.enlace-pagina {
+  padding: 4px 10px;
+  color: var(--rotulo);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: var(--espaciado);
+  text-decoration: none;
+  text-transform: uppercase;
+  background: var(--tecla-fondo);
+  border: 1px solid var(--bisel);
+  border-bottom-width: var(--tecla-relieve);
+  border-radius: var(--radio-tecla);
+}
+
+:root[data-tema="1945"] .enlace-pagina { border-radius: 4px; }
+
+.enlace-pagina:hover { filter: brightness(1.2); }
+
 .estacion {
   margin: 0;
   color: var(--rotulo-tenue);
@@ -421,6 +439,35 @@ dd.mal { color: var(--alerta); }
   justify-content: space-between;
   color: var(--rotulo-tenue);
   font-size: 0.72rem;
+}
+
+.leyenda-cobertura {
+  display: grid;
+  gap: 3px;
+}
+
+.leyenda-cobertura[hidden] { display: none; }
+
+.cobertura-bandas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--rotulo);
+  font-size: 0.85rem;
+}
+
+.cobertura-bandas li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.muestra-trazo {
+  width: 22px;
+  border-top: 2px solid currentColor;
 }
 
 .bloque {

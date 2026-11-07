@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es" data-tema="1962">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sondeo Gravity</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=B612+Mono&family=Barlow+Condensed:wght@500;600&family=Caveat:wght@700&family=Chakra+Petch:wght@400;600&family=IBM+Plex+Sans:wght@400;600&family=Michroma&family=Share+Tech+Mono&family=Special+Elite&family=VT323&display=swap">
+  <link rel="stylesheet" href="radar.css">
+  <link rel="stylesheet" href="sondeo.css">
+  <script>
+    // La época se comparte con el radar; se aplica antes de pintar para que no parpadee.
+    try { document.documentElement.dataset.tema = JSON.parse(localStorage.getItem("radar.tema")) || "1962"; } catch {}
+  </script>
+</head>
+<body>
+  <main class="consola">
+    <section class="pantalla" id="pantalla" aria-label="Diagrama de sondeo: temperatura y viento por altitud">
+      <canvas id="sondeo"></canvas>
+      <p id="aviso" class="aviso" role="status" hidden></p>
+    </section>
+
+    <aside class="panel">
+      <header class="placa">
+        <h1>Sondeo aéreo</h1>
+        <a class="enlace-pagina" href="./">Radar</a>
+      </header>
+      <p id="resumen" class="nota">Esperando datos…</p>
+
+      <dl class="lecturas">
+        <div><dt>Isoterma 0 °C</dt><dd id="isoterma">---</dd></div>
+        <div><dt>Tropopausa</dt><dd id="tropopausa">---</dd></div>
+        <div><dt>Viento máx.</dt><dd id="viento-max">---</dd></div>
+        <div><dt>Aviones</dt><dd id="aviones">0</dd></div>
+        <div><dt>Observ.</dt><dd id="observaciones">0</dd></div>
+        <div><dt>Hora UTC</dt><dd id="actualizado">--:--</dd></div>
+      </dl>
+
+      <p id="avisos-meteo" class="nota destacado" hidden></p>
+
+      <section class="bloque capas" aria-labelledby="titulo-capas">
+        <h2 id="titulo-capas">Capas</h2>
+        <div class="contenedor-tabla">
+          <table class="tabla-capas">
+            <thead>
+              <tr><th scope="col">Nivel</th><th scope="col">Temp</th><th scope="col">vs ISA</th><th scope="col">Viento</th><th scope="col">Avs</th></tr>
+            </thead>
+            <tbody id="tabla"></tbody>
+          </table>
+        </div>
+        <p id="sin-capas" class="nota">Todavía no hay observaciones.</p>
+      </section>
+
+      <p class="nota explicacion">
+        Los aviones informan de su rumbo, velocidad verdadera y número de Mach. Con eso readsb calcula
+        el viento y la temperatura exterior a su altitud. Cada capa de 1000 ft es la mediana de la última
+        hora. La línea discontinua es la atmósfera estándar (ISA).
+      </p>
+    </aside>
+  </main>
+  <script src="sondeo.js"></script>
+</body>
+</html>

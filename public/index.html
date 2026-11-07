@@ -19,6 +19,7 @@
       <header class="placa">
         <h1>Vigilancia aérea</h1>
         <p id="estacion" class="estacion">---</p>
+        <a class="enlace-pagina" href="sondeo.html">Sondeo</a>
       </header>
 
       <fieldset class="selector-epoca">
@@ -53,6 +54,17 @@
             <button type="button" id="localidades" class="tecla" aria-labelledby="rotulo-localidades" aria-pressed="true">Sí</button>
           </div>
         </div>
+        <div class="mando">
+          <span class="rotulo" id="rotulo-cobertura">Cobertura</span>
+          <div class="teclas">
+            <button type="button" id="cobertura" class="tecla" aria-labelledby="rotulo-cobertura" aria-pressed="true">Sí</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="leyenda-cobertura" class="leyenda-cobertura" hidden>
+        <span class="rotulo" id="cobertura-desde">Alcance máximo</span>
+        <ul id="cobertura-bandas" class="cobertura-bandas"></ul>
       </div>
 
       <div id="leyenda" class="leyenda" hidden>

@@ -1,0 +1,60 @@
+/* Pantalla de sondeo: reutiliza la consola y los tokens de época de radar.css. */
+
+#sondeo {
+  position: absolute;
+  display: block;
+}
+
+.destacado { color: var(--fosforo); }
+
+.capas {
+  flex: 1 1 auto;
+  min-height: 160px;
+}
+
+.contenedor-tabla {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--bisel);
+  scrollbar-color: var(--lectura-rotulo) var(--bisel);
+  scrollbar-width: thin;
+}
+
+.tabla-capas {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla-capas th {
+  position: sticky;
+  top: 0;
+  padding: 4px 8px;
+  color: var(--rotulo-tenue);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: var(--espaciado);
+  text-align: left;
+  text-transform: uppercase;
+  background: var(--bisel);
+}
+
+.tabla-capas td {
+  padding: 2px 8px;
+  color: var(--fosforo);
+  font: 400 calc(1.15rem * var(--escala-lectura))/1.25 var(--lectura);
+  white-space: nowrap;
+}
+
+.tabla-capas tr.tropopausa td { box-shadow: inset 0 -1px 0 var(--rotulo); }
+
+.tabla-capas tr.chorro td:nth-child(4) { color: var(--alerta); }
+
+.tabla-capas .tenue { color: var(--fosforo-tenue); }
+
+.explicacion { font-size: 0.8rem; }
+
+@media (max-width: 820px) {
+  .contenedor-tabla { max-height: 50vh; }
+}

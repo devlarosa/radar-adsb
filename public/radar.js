@@ -9,6 +9,7 @@ const ALFA_MIN_ULTIMO_ECO = 0.45;
 const POSICION_CADUCA_S = 30;
 const DATOS_PARADOS_MS = 15000;
 const SONDEO_MS = 1000;
+const SONDEO_COBERTURA_MS = 30000;
 const CALENTAMIENTO_MS = 1100;
 const TEMA_INICIAL = "1962";
 
@@ -34,6 +35,13 @@ const FUENTES = {
   tisb_icao: "TIS-B", tisb_trackfile: "TIS-B", tisb_other: "TIS-B", mlat: "MLAT", mode_s: "MODO S",
 };
 
+// Trazo y altitud representativa (para el color en las épocas que colorean por altitud) de cada banda.
+const ESTILO_COBERTURA = {
+  baja: { trazo: [2, 4], css: "dotted", altitud: 5000 },
+  media: { trazo: [9, 5], css: "dashed", altitud: 18000 },
+  alta: { trazo: [], css: "solid", altitud: 36000 },
+};
+
 const SQUAWKS = { 7500: "7500 SECUESTRO", 7600: "7600 RADIO", 7700: "7700 EMERGENCIA" };
 const PUNTOS_CARDINALES = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
 
@@ -43,7 +51,7 @@ const pantalla = document.getElementById("pantalla");
 const dom = Object.fromEntries(
   ["aviso", "estacion", "utc", "enlace", "blancos", "mensajes", "maximo", "exploracion", "alcances", "etiquetas",
     "localidades", "epocas", "epoca-info", "placa-tubo", "leyenda", "leyenda-barra", "sin-ficha", "ficha", "lista",
-    "sin-trafico"].map((id) => [id, document.getElementById(id)]),
+    "sin-trafico", "cobertura", "leyenda-cobertura", "cobertura-desde", "cobertura-bandas"].map((id) => [id, document.getElementById(id)]),
 );
 
 const movimientoReducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -57,6 +65,8 @@ const estado = {
   etiquetas: leerAjuste("radar.etiquetas", true),
   verLocalidades: leerAjuste("radar.localidades", true),
   localidades: [],
+  verCobertura: leerAjuste("radar.cobertura", true),
+  cobertura: null,
   angulo: 0,
   pulso: 0,
   encendido: 0,
@@ -255,6 +265,24 @@ async function sondear() {
     actualizarEnlace("SIN DATOS DEL RECEPTOR");
   } finally {
     setTimeout(sondear, SONDEO_MS);
+  }
+}
+
+// El servidor acumula la cobertura por su cuenta; aquí solo se consulta de vez en cuando.
+async function sondearCobertura() {
+  try {
+    const respuesta = await fetch("api/cobertura", { cache: "no-store" });
+    if (!respuesta.ok) throw new Error(String(respuesta.status));
+    const datos = await respuesta.json();
+    if (JSON.stringify(datos) !== JSON.stringify(estado.cobertura)) {
+      estado.cobertura = datos;
+      actualizarLeyendaCobertura();
+      if (estado.verCobertura) dibujarFondo();
+    }
+  } catch (error) {
+    console.warn("No se ha podido leer la cobertura", error);
+  } finally {
+    setTimeout(sondearCobertura, SONDEO_COBERTURA_MS);
   }
 }
 
@@ -598,11 +626,76 @@ function dibujarMapa(c) {
   c.restore();
 }
 
+function colorCobertura(id) {
+  const { altitud } = ESTILO_COBERTURA[id];
+  return tema.altitud ? colorAltitud({ alt_baro: altitud }) : tema.colores.etiqueta;
+}
+
+function trazarPoligono(c, distancias, paso) {
+  c.beginPath();
+  distancias.forEach((nm, i) => {
+    const { x, y } = aPantalla(nm, (i + 0.5) * paso * RAD);
+    if (i === 0) c.moveTo(x, y);
+    else c.lineTo(x, y);
+  });
+  c.closePath();
+}
+
+// Alcance máximo por dirección: un polígono por banda de altitud, sobre una mancha con la envolvente.
+function dibujarCobertura(c) {
+  const datos = estado.cobertura;
+  if (!estado.verCobertura || !datos) return;
+  const bandas = datos.bandas.filter((b) => b.nm.some((nm) => nm > 0));
+  if (bandas.length === 0) return;
+
+  c.save();
+  trazarContorno(c);
+  c.clip();
+
+  const envolvente = bandas[0].nm.map((_, i) => Math.max(...bandas.map((b) => b.nm[i])));
+  trazarPoligono(c, envolvente, datos.paso);
+  c.fillStyle = rgba(tema.colores.etiqueta, 0.07);
+  c.fill();
+
+  c.lineWidth = 1.5;
+  c.lineJoin = "round";
+  for (const b of bandas) {
+    const estilo = ESTILO_COBERTURA[b.id] || ESTILO_COBERTURA.alta;
+    c.setLineDash(estilo.trazo);
+    c.strokeStyle = rgba(colorCobertura(b.id), 0.75);
+    trazarPoligono(c, b.nm, datos.paso);
+    c.stroke();
+  }
+  c.restore();
+}
+
+function actualizarLeyendaCobertura() {
+  const datos = estado.cobertura;
+  dom["leyenda-cobertura"].hidden = !estado.verCobertura || !datos;
+  if (!datos) return;
+  const desde = new Date(datos.desde * 1000);
+  dom["cobertura-desde"].textContent = `Alcance máximo desde ${desde.toLocaleDateString("es-ES", { day: "numeric", month: "short" })}`;
+  dom["cobertura-bandas"].replaceChildren(...datos.bandas.map((b) => {
+    const estilo = ESTILO_COBERTURA[b.id] || ESTILO_COBERTURA.alta;
+    const item = document.createElement("li");
+    const muestra = document.createElement("span");
+    muestra.className = "muestra-trazo";
+    muestra.style.borderTopStyle = estilo.css;
+    muestra.style.color = rgba(colorCobertura(b.id), 1);
+    const texto = document.createElement("span");
+    const maximo = Math.max(...b.nm);
+    texto.textContent = `${b.nombre} · ${maximo > 0 ? `${maximo.toFixed(0)} NM` : "---"}`;
+    item.append(muestra, texto);
+    return item;
+  }));
+}
+
 function dibujarFondo() {
   if (estado.lat === null || geo.tam === 0) return;
   const [capa, c] = nuevaCapa();
   dibujarCuerpo(c);
   dibujarRetícula(c);
+  dibujarCobertura(c);
   dibujarMapa(c);
 
   c.strokeStyle = tema.colores.rumbos;
@@ -1071,6 +1164,7 @@ function aplicarTema(id, guardar = true) {
     dom["leyenda-barra"].style.background = `linear-gradient(to right, ${paradas.join(", ")})`;
   }
 
+  actualizarLeyendaCobertura();
   estado.encendido = performance.now();
   ajustarTamano();
 
@@ -1136,6 +1230,10 @@ function prepararMandos() {
 
   prepararInterruptor(dom.etiquetas, "radar.etiquetas", "etiquetas");
   prepararInterruptor(dom.localidades, "radar.localidades", "verLocalidades", dibujarFondo);
+  prepararInterruptor(dom.cobertura, "radar.cobertura", "verCobertura", () => {
+    actualizarLeyendaCobertura();
+    dibujarFondo();
+  });
 
   lienzo.addEventListener("click", (evento) => {
     const caja = lienzo.getBoundingClientRect();
@@ -1188,6 +1286,7 @@ async function arrancar() {
   dibujarFondo();
   cargarLocalidades();
   sondear();
+  sondearCobertura();
 }
 
 arrancar();
