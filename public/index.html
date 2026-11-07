@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es" data-tema="1962">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radar Gravity</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=B612+Mono&family=Barlow+Condensed:wght@500;600&family=Caveat:wght@700&family=Chakra+Petch:wght@400;600&family=IBM+Plex+Sans:wght@400;600&family=Michroma&family=Share+Tech+Mono&family=Special+Elite&family=VT323&display=swap">
+  <link rel="stylesheet" href="radar.css">
+</head>
+<body>
+  <main class="consola">
+    <section class="pantalla" id="pantalla" aria-label="Pantalla de radar">
+      <canvas id="radar"></canvas>
+      <p id="aviso" class="aviso" role="status" hidden></p>
+      <p id="placa-tubo" class="placa-tubo" hidden></p>
+    </section>
+
+    <aside class="panel">
+      <header class="placa">
+        <h1>Vigilancia aérea</h1>
+        <p id="estacion" class="estacion">---</p>
+      </header>
+
+      <fieldset class="selector-epoca">
+        <legend class="rotulo">Época</legend>
+        <div id="epocas" class="epocas"></div>
+        <p id="epoca-info" class="nota epoca-info"></p>
+      </fieldset>
+
+      <dl class="lecturas">
+        <div><dt>Hora UTC</dt><dd id="utc">--:--:--</dd></div>
+        <div><dt>Enlace</dt><dd id="enlace">---</dd></div>
+        <div><dt>Blancos</dt><dd id="blancos">0</dd></div>
+        <div><dt>Mensajes/s</dt><dd id="mensajes">---</dd></div>
+        <div><dt>Máx. sesión</dt><dd id="maximo">--- NM</dd></div>
+        <div><dt>Exploración</dt><dd id="exploracion">---</dd></div>
+      </dl>
+
+      <div class="mandos">
+        <div class="mando">
+          <span class="rotulo" id="rotulo-alcance">Alcance NM</span>
+          <div id="alcances" class="teclas" role="group" aria-labelledby="rotulo-alcance"></div>
+        </div>
+        <div class="mando">
+          <span class="rotulo" id="rotulo-etiquetas">Etiquetas</span>
+          <div class="teclas">
+            <button type="button" id="etiquetas" class="tecla" aria-labelledby="rotulo-etiquetas" aria-pressed="true">Sí</button>
+          </div>
+        </div>
+        <div class="mando">
+          <span class="rotulo" id="rotulo-localidades">Lugares</span>
+          <div class="teclas">
+            <button type="button" id="localidades" class="tecla" aria-labelledby="rotulo-localidades" aria-pressed="true">Sí</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="leyenda" class="leyenda" hidden>
+        <span class="rotulo">Altitud</span>
+        <span id="leyenda-barra" class="leyenda-barra"></span>
+        <span class="leyenda-marcas" aria-hidden="true"><span>0</span><span>FL100</span><span>FL200</span><span>FL300</span><span>FL400</span></span>
+      </div>
+
+      <section class="bloque" aria-labelledby="titulo-ficha">
+        <h2 id="titulo-ficha">Blanco seleccionado</h2>
+        <p id="sin-ficha" class="nota">Pulsa un eco en la pantalla o una fila de la lista.</p>
+        <dl id="ficha" class="ficha" hidden></dl>
+      </section>
+
+      <section class="bloque trafico" aria-labelledby="titulo-trafico">
+        <h2 id="titulo-trafico">Tráfico</h2>
+        <div class="fila cabecera-fila" aria-hidden="true">
+          <span>Vuelo</span><span>Nivel</span><span>Nudos</span><span>Dist/Dem</span>
+        </div>
+        <div id="lista" class="lista"></div>
+        <p id="sin-trafico" class="nota" hidden>Sin tráfico recibido.</p>
+      </section>
+
+      <p class="credito">Localidades: <a href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames</a> (CC BY 4.0)</p>
+    </aside>
+  </main>
+  <script src="temas.js"></script>
+  <script src="radar.js"></script>
+</body>
+</html>

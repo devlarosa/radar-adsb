@@ -1,0 +1,17 @@
+# Configuración privada (posición real de la antena)
+config.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Descargas de GeoNames
+*.zip
+cities*.txt
+
+# Editor y sistema
+.vscode/
+.idea/
+.DS_Store
+*.swp
