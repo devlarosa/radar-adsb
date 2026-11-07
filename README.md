@@ -23,6 +23,28 @@ Solo usa la biblioteca estándar de Python: no hay dependencias que instalar.
 
    y abre `http://<máquina>:8090`.
 
+### Como servicio (arranque automático)
+
+`systemd/radar-adsb.service` es un servicio de usuario: no necesita permisos de administrador,
+arranca al encender la máquina y se reinicia solo si falla. Supone que el proyecto está en
+`~/mi-proyecto`; si no, cambia `WorkingDirectory`.
+
+```sh
+mkdir -p ~/.config/systemd/user
+cp systemd/radar-adsb.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now radar-adsb
+loginctl enable-linger "$USER"   # que arranque sin tener que iniciar sesión
+```
+
+Para verlo o reiniciarlo tras cambiar el código:
+
+```sh
+systemctl --user status radar-adsb
+systemctl --user restart radar-adsb
+journalctl --user -u radar-adsb -f
+```
+
 Opciones de `server.py`:
 
 | Opción   | Por defecto                  | Descripción                                   |
