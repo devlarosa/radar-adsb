@@ -63,3 +63,8 @@ config.example.json         plantilla de la configuración local
 
 Datos de localidades de [GeoNames](https://www.geonames.org/), bajo licencia
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+## Licencia
+
+El código se distribuye bajo la [licencia MIT](LICENSE). Los datos de `public/localidades.json`
+mantienen su licencia original (CC BY 4.0, GeoNames).
